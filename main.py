@@ -4,11 +4,14 @@ import numpy as np
 import datetime as dt
 from sklearn.tree import DecisionTreeRegressor
 
+def Average(lst):
+    return sum(lst) / len(lst)
+
 df = pd.read_csv("scraped_data_final.csv",index_col=False)
 df.pop("Unnamed: 0")
 df['Order Date']= pd.to_datetime(df['Order Date'])
 df['Release Date']= pd.to_datetime(df['Release Date'])
-preds = []
+
 
 sg.theme('DarkAmber')   # Add a little color to your windows
 # All the stuff inside your window. This is the PSG magic code compactor...
@@ -20,7 +23,7 @@ layout = [[sg.Text('Hello and welcome to the sneaker price predictor')],
           [sg.Text('Shoe Size'), sg.Combo(values=list(df["Shoe Size"].unique()), size=(35, 30), key='key Shoe Size')],
           [sg.Text('Color'), sg.Combo(values=list(df["Colors"].unique()), size=(35, 30), key='key Colors')],
           [sg.B("PREDICT THE SELL PRICE", key = "launch_pred")],
-          [sg.Text('Here is your preediction : ',key = "key_pred_1", visible=False), sg.T("", key = "key_pred_2")]]
+          [sg.Text('$ is the predicted price for your sneaker',key = "key_pred_1", visible=False), sg.T("", key = "key_pred_2")]]
 
 # Create the Window
 window = sg.Window('sneaker price predictor', layout)
@@ -45,7 +48,7 @@ while True:
             X_all = df_ts.Order_Date.map(dt.datetime.toordinal)[:, np.newaxis]
             pred_tree = tree.predict(X_all)
             preds.append(pred_tree[-1])
-            window.update(values[""])
-
+            window["key_pred_1"].update(visible = True)
+            window["key_pred_2"].update(value= round(Average(preds),2))
 
 window.close()
